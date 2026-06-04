@@ -44,12 +44,8 @@ app.use(
     })
 );
 app.use(httpMetricRecorder())
-app.use(errorHandler)
 
 app.use("/auth", authRouter)
-
-
-
 
 app.get("/", (req, res) => {
     res.send("Hello")
@@ -59,6 +55,8 @@ app.get("/metrics", async(req : Request, res : Response) => {
     res.set("Content-Type", register.contentType);
     res.end(await register.metrics());
 })
+
+app.use(errorHandler)
 
 
 app.listen(port, () => {

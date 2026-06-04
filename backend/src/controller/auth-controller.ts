@@ -48,8 +48,8 @@ export async function register(req : Request, res : Response) {
         })
 
         if(newUser){
-            generateToken(newUser._id, res)
             await newUser.save()
+            generateToken(newUser._id, res)
             return res.status(201).json({
                 status : res.statusCode,
                 message : "User registered successfully",
@@ -74,7 +74,7 @@ export async function register(req : Request, res : Response) {
     catch(e){
         return res.status(500).json({
             status : res.statusCode,
-            message: "Login failed"
+            message: "Register failed"
         })
     }
 
