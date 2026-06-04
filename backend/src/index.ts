@@ -7,6 +7,8 @@ import client from "prom-client"
 import httpMetricRecorder from "./request-tracker/httpRequestTracker";
 import {setServers} from "node:dns/promises";
 import {connectDB} from "./database/connectDB";
+import {errorHandler} from "./error-handling/errorHandler";
+import authRouter from "./router/auth-router";
 setServers(["1.1.1.1","8.8.8.8"])
 
 
@@ -43,8 +45,7 @@ app.use(
 );
 app.use(httpMetricRecorder())
 
-
-
+app.use("/auth", authRouter)
 
 app.get("/", (req, res) => {
     res.send("Hello")
@@ -54,6 +55,8 @@ app.get("/metrics", async(req : Request, res : Response) => {
     res.set("Content-Type", register.contentType);
     res.end(await register.metrics());
 })
+
+app.use(errorHandler)
 
 
 app.listen(port, () => {
