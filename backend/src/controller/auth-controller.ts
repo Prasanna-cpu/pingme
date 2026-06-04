@@ -5,6 +5,7 @@ import User from "../entity/User";
 import bcrypt from "bcrypt"
 import mongoose from "mongoose";
 import {generateToken} from "../token/generateToken";
+import {sendWelcomeEmail} from "../emails/emailHandlers";
 
 
 export async function register(req : Request, res : Response) {
@@ -48,8 +49,14 @@ export async function register(req : Request, res : Response) {
         })
 
         if(newUser){
-            await newUser.save()
+            const savedUser = await newUser.save()
             generateToken(newUser._id, res)
+            try {
+                await sendWelcomeEmail(savedUser.fullName, savedUser.email, process.env.CLIENT_URL ?? '');
+            }
+            catch (err) {
+                console.error("Failed to send welcome email:", err);
+            }
             return res.status(201).json({
                 status : res.statusCode,
                 message : "User registered successfully",
@@ -62,6 +69,7 @@ export async function register(req : Request, res : Response) {
                     }
                 }
             })
+
         }
         else {
             return res.status(400).json({
