@@ -61,6 +61,7 @@ export const suspiciousRequestBlocker = (
             message : "Forbidden access to suspicious request"
         })
     }
+    next();
 }
 
 export const authRateLimiter = rateLimit({
@@ -68,6 +69,7 @@ export const authRateLimiter = rateLimit({
     standardHeaders : true,
     legacyHeaders : false,
     skipSuccessfulRequests : true,
+    limit : 10,
     message : {
         message: "Too many authentication attempts. Please try again later."
     }
