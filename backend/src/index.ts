@@ -11,6 +11,7 @@ import {errorHandler} from "./error-handling/errorHandler";
 import authRouter from "./router/auth-router";
 import userRouter from "./router/user-router";
 import cookieParser from "cookie-parser";
+import messageRouter from "./router/message-router";
 setServers(["1.1.1.1","8.8.8.8"])
 
 
@@ -52,6 +53,7 @@ app.use(cookieParser())
 
 app.use("/auth", authRouter)
 app.use("/api/users", userRouter)
+app.use("/api/messages", messageRouter)
 
 app.get("/", (req, res) => {
     res.send("Hello")
