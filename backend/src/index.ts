@@ -1,7 +1,7 @@
 import helmet from "helmet";
 import express , {Request, Response} from "express"
 import dotenv from "dotenv"
-import standardRateLimiter from "./rate-limiter/rateLimiter";
+import standardRateLimiter, {botUserAgentBlocker, suspiciousRequestBlocker} from "./rate-limiter/rateLimiter";
 import {requestTimeout} from "./time-out/timeOut";
 import client from "prom-client"
 import httpMetricRecorder from "./request-tracker/httpRequestTracker";
@@ -31,6 +31,8 @@ const app = express()
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(botUserAgentBlocker)
+app.use(suspiciousRequestBlocker)
 app.use(standardRateLimiter)
 app.use(requestTimeout(15000))
 app.use(
