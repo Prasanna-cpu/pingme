@@ -9,4 +9,9 @@ export const messageSchema = Joi.object({
         'string.base': 'Image must be a string',
         'string.uri': 'Image must be a valid URI'
     })
+}).custom((value, helpers) => {
+    if(!value.text && !value.image){
+        return helpers.error('any.required', { message: 'A message must have either text or image' });
+    }
+    return value
 })

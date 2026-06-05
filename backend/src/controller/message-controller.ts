@@ -81,7 +81,7 @@ export async function sendMessage(req : AuthenticatedRequest, res : Response){
             })
         }
 
-        const {text, image} = req.body
+        const {text, image} = value
 
         if(senderId.equals(receiverId)){
             return res.status(400).json({
@@ -141,7 +141,7 @@ export async function getMessagesByUserId(req : AuthenticatedRequest, res : Resp
                 {senderId : myId, receiverId : userToChatId},
                 {senderId : userToChatId, receiverId : myId}
             ]
-        })
+        }).sort({ createdAt: 1 })
 
         return res.status(200).json({
             status : res.statusCode,
