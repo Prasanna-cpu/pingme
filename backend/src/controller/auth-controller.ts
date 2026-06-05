@@ -6,6 +6,7 @@ import bcrypt from "bcrypt"
 import mongoose from "mongoose";
 import {generateToken} from "../token/generateToken";
 import {sendWelcomeEmail} from "../emails/emailHandlers";
+import cloudinary from "../cloudinary/cloudinary";
 
 
 export async function register(req : Request, res : Response) {
@@ -41,11 +42,13 @@ export async function register(req : Request, res : Response) {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        const uploadResponse = await cloudinary.uploader.upload(profilePic)
+
         const newUser = new User({
             fullName,
             email,
             password : hashedPassword,
-            profilePic
+            profilePic : uploadResponse.secure_url
         })
 
         if(newUser){
