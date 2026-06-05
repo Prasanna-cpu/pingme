@@ -25,16 +25,20 @@ export const protectRoute = async (
             })
         }
 
+        if (!process.env.JWT_SECRET) {
+            throw new Error("Secret not defined")
+        }
+
         const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as DecodedToken
 
         // console.log("Decoded : ",decoded)
 
-        if(!decoded){
-            return res.status(401).json({
-                status : res.statusCode,
-                message : "Unauthorized, invalid token"
-            })
-        }
+        // if(!decoded){
+        //     return res.status(401).json({
+        //         status : res.statusCode,
+        //         message : "Unauthorized, invalid token"
+        //     })
+        // }
 
         const user = await User.findById(decoded.userId).select("-password")
 

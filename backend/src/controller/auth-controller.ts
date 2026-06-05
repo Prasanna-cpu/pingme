@@ -42,13 +42,18 @@ export async function register(req : Request, res : Response) {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const uploadResponse = await cloudinary.uploader.upload(profilePic)
+        let profilePicUrl = ""
+
+        if(profilePic){
+            const uploadResponse = await cloudinary.uploader.upload(profilePic)
+            profilePicUrl = uploadResponse.secure_url
+        }
 
         const newUser = new User({
             fullName,
             email,
             password : hashedPassword,
-            profilePic : uploadResponse.secure_url
+            profilePic : profilePicUrl
         })
 
         if(newUser){

@@ -52,7 +52,7 @@ export async function check(req : AuthenticatedRequest, res : Response){
         })
     }
     catch (e) {
-        res.status(500).json({
+        return res.status(500).json({
             status : res.statusCode,
             message : "Check function failed"
         })
