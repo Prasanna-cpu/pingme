@@ -1,6 +1,7 @@
 import helmet from "helmet";
 import express , {Request, Response} from "express"
 import dotenv from "dotenv"
+import cors from "cors"
 import standardRateLimiter, {botUserAgentBlocker, suspiciousRequestBlocker} from "./rate-limiter/rateLimiter";
 import {requestTimeout} from "./time-out/timeOut";
 import client from "prom-client"
@@ -32,6 +33,10 @@ const app = express()
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(cors({
+    origin : process.env.CLIENT_URL,
+    credentials : true
+}))
 app.use(botUserAgentBlocker)
 app.use(suspiciousRequestBlocker)
 app.use(standardRateLimiter)
