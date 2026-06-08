@@ -15,14 +15,14 @@ export const socketAuthMiddleware = async (socket : any, next : any) => {
             return next(new Error("Unauthorized - No Token Provided"));
         }
 
-        const decodedUser = jwt.verify(token, process.env.JWT_SECRET as string) as any;
+        const decodedUser = jwt.verify(token, process.env.JWT_SECRET as string) as { userId: string };
 
         if(!decodedUser){
             console.error("User not found, Connection rejected")
         }
 
         socket.user = decodedUser
-        socket.userId = decodedUser._id.toString()
+        socket.userId = decodedUser.userId
 
         console.info(`Socket authenticated for user : ${decodedUser.fullName} with the id ${decodedUser._id}`)
 
