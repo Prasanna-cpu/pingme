@@ -1,6 +1,10 @@
 import React from 'react';
 
-const LoginPage: React.FunctionComponent = () => {
+interface LoginPageProps{
+    myName? : any
+}
+
+const LoginPage: React.FunctionComponent<LoginPageProps> = ({myName}) => {
     return (
         <div>
             

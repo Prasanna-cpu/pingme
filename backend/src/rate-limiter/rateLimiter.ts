@@ -18,6 +18,49 @@ const blockedUserAgents = [
     /masscan/i
 ];
 
+const dangerousMongoOperators = new Set([
+    "$eq",
+    "$ne",
+    "$gt",
+    "$gte",
+    "$lt",
+    "$lte",
+    "$in",
+    "$nin",
+    "$or",
+    "$and",
+    "$nor",
+    "$not",
+    "$exists",
+    "$type",
+    "$regex",
+    "$expr",
+    "$jsonSchema",
+    "$mod",
+    "$all",
+    "$elemMatch",
+    "$size",
+    "$where",
+    "$function",
+    "$accumulator",
+    "$lookup",
+    "$graphLookup",
+    "$merge",
+    "$out",
+    "$rename",
+    "$set",
+    "$unset",
+    "$inc",
+    "$mul",
+    "$min",
+    "$max",
+    "$push",
+    "$pull",
+    "$pullAll",
+    "$addToSet",
+    "$pop"
+]);
+
 const suspiciousPatterns = [
     /\.\./,
     /<script/i,
@@ -31,6 +74,34 @@ const suspiciousPatterns = [
     /\.env/i,
     /phpmyadmin/i
 ];
+
+const hasDangerousMongoKeys = (value: unknown): boolean => {
+    if (value === null || value === undefined) {
+        return false;
+    }
+
+    if (Array.isArray(value)) {
+        return value.some((item) => hasDangerousMongoKeys(item));
+    }
+
+    if (typeof value !== "object") {
+        return false;
+    }
+
+    return Object.entries(value as Record<string, unknown>).some(([key, nestedValue]) => {
+        const normalizedKey = key.trim();
+
+        if (
+            normalizedKey.startsWith("$") ||
+            normalizedKey.includes(".") ||
+            dangerousMongoOperators.has(normalizedKey)
+        ) {
+            return true;
+        }
+
+        return hasDangerousMongoKeys(nestedValue);
+    });
+};
 
 export const botUserAgentBlocker = (
     req : Request,
@@ -61,6 +132,14 @@ export const suspiciousRequestBlocker = (
             message : "Forbidden access to suspicious request"
         })
     }
+
+    if(hasDangerousMongoKeys(req.body) || hasDangerousMongoKeys(req.query) || hasDangerousMongoKeys(req.params)){
+        return res.status(403).json({
+            status : res.statusCode,
+            message : "Forbidden access to request with dangerous MongoDB operators"
+        })
+    }
+
     next();
 }
 

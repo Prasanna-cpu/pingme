@@ -55,7 +55,17 @@ export const protectRoute = async (
         next()
     }
     catch (e) {
-        console.log("Error in Middleware : " + e)
+        console.log("Error in Middleware : ", e)
+
+        // If token verification failed (invalid/expired token) return 401 instead of 500
+        const errName = (e as any)?.name
+        if (errName === 'JsonWebTokenError' || errName === 'TokenExpiredError') {
+            return res.status(401).json({
+                status: res.statusCode,
+                message: "Unauthorized, invalid or expired token"
+            })
+        }
+
         return res.status(500).json({
             status : res.statusCode,
             message : "Internal Server Error"

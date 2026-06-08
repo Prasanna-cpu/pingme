@@ -1,6 +1,10 @@
 import React from 'react';
 
-const ChatPage : React.FunctionComponent = () => {
+interface ChatPageProps {
+    myName? : any
+}
+
+const ChatPage : React.FunctionComponent<ChatPageProps> = ({myName}) => {
     return (
         <div>
             

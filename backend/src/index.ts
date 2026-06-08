@@ -13,6 +13,7 @@ import authRouter from "./router/auth-router";
 import userRouter from "./router/user-router";
 import cookieParser from "cookie-parser";
 import messageRouter from "./router/message-router";
+import {server} from "./socket/socket";
 setServers(["1.1.1.1","8.8.8.8"])
 
 
@@ -72,7 +73,7 @@ app.get("/metrics", async(req : Request, res : Response) => {
 app.use(errorHandler)
 
 
-app.listen(port, () => {
+server.listen(port, () => {
     console.info(`Server is running on  http://localhost:${port}`)
     connectDB(uri).then(() => {
         console.info("Connected to MongoDB")

@@ -155,7 +155,15 @@ export async function login(req : Request, res : Response) {
 }
 
 export function logout(req : Request, res : Response){
-    res.cookie("jwt","",{maxAge: 0})
+    const isDev = process.env.NODE_ENV === "development"
+    // Clear cookie with the same options used to set it so browsers will remove it correctly
+    res.cookie("jwt", "", {
+        maxAge: 0,
+        httpOnly: true,
+        sameSite: isDev ? "lax" : "none",
+        secure: !isDev,
+        path: '/'
+    })
     return res.status(200).json({
         status : res.statusCode,
         message : "Logged Out Successfully"

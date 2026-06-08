@@ -1,6 +1,10 @@
 import React from 'react';
 
-const SignUpPage : React.FunctionComponent = () => {
+interface SignUpPageProps{
+    myName? : any
+}
+
+const SignUpPage : React.FunctionComponent<SignUpPageProps> = ({myName}) => {
     return (
         <div>
 
