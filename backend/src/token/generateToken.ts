@@ -13,11 +13,16 @@ export const generateToken = (userId : Object , res : express.Response) => {
         expiresIn : "7d"
     })
 
+    const isDev = process.env.NODE_ENV === "development"
+
+    // For development allow cross-origin requests from the dev client by using "lax".
+    // In production use SameSite=None and secure=true so cross-site cookies work over HTTPS.
     res.cookie("jwt", token, {
         maxAge : 7 * 24 * 60 * 60 * 1000,
         httpOnly : true,
-        sameSite : "strict",
-        secure : process.env.NODE_ENV !== "development"
+        sameSite : isDev ? "lax" : "none",
+        secure : !isDev,
+        path: '/'
     })
 
     return token
