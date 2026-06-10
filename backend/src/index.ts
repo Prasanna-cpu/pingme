@@ -17,6 +17,9 @@ import messageRouter from "./router/message-router";
 import {connectRedis, disconnectRedis} from "./cache/redisClient";
 import * as http from "node:http";
 import {app, server, io} from "./socket/socket";
+import {swaggerSpec} from "./swagger/swagger";
+import swaggerUi from "swagger-ui-express";
+
 
 setServers(["1.1.1.1","8.8.8.8"])
 
@@ -44,6 +47,11 @@ app.use(cors({
     origin : process.env.CLIENT_URL,
     credentials : true
 }))
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+app.get("/api-docs.json", (req: Request, res: Response) => {
+    res.setHeader("Content-Type", "application/json");
+    res.send(swaggerSpec);
+})
 app.use(botUserAgentBlocker)
 app.use(suspiciousRequestBlocker)
 app.use(standardRateLimiter)
