@@ -41,10 +41,12 @@ messageRouter.get(
     cacheMiddleware(30, (req) => {
         const myId = (req as any).user._id.toString();
         const otherUserId = req.params.id;
+        const page = req.query.page || 1;
+        const limit = req.query.limit || 20;
 
         const conversationKey = [myId, otherUserId].sort().join(":");
 
-        return `messages:conversation:${conversationKey}`;
+        return `messages:conversation:${conversationKey}:page:${page}:limit:${limit}`;
     }),
     getMessagesByUserId
 )
@@ -70,8 +72,10 @@ messageRouter.get(
     protectRoute,
     cacheMiddleware(300, (req) => {
         const myId = (req as any).user._id.toString();
+        const page = req.query.page || 1;
+        const limit = req.query.limit || 20;
 
-        return `messages:contacts:${myId}`;
+        return `messages:contacts:${myId}:page:${page}:limit:${limit}`;
     }),
     getAllContacts
 )
@@ -97,8 +101,10 @@ messageRouter.get(
     protectRoute,
     cacheMiddleware(60, (req) => {
         const myId = (req as any).user._id.toString();
+        const page = req.query.page || 1;
+        const limit = req.query.limit || 20;
 
-        return `messages:chat-partners:${myId}`;
+        return `messages:chat-partners:${myId}:page:${page}:limit:${limit}`;
     }),
     getChatPartners
 )
