@@ -29,6 +29,7 @@ export async function getAllContacts(req : AuthenticatedRequest, res : Response)
         const [filteredUsers, totalUsers] = await Promise.all([
             User.find(filter)
                 .select("-password")
+                .sort({_id : 1})
                 .skip(skip)
                 .limit(limit),
             User.countDocuments(filter)
@@ -93,6 +94,8 @@ export async function getChatPartners(req : AuthenticatedRequest, res : Response
                 $in : paginatedChatPartnerIds
             }
         })
+            .sort({_id : 1})
+            .select("-password");
 
         const totalPages = Math.ceil(totalPartners / limit);
 
