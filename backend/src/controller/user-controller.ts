@@ -2,6 +2,7 @@ import {Request, Response} from "express";
 import {AuthenticatedRequest} from "../auth/auth-middleware";
 import cloudinary from "../cloudinary/cloudinary";
 import User from "../entity/User";
+import {deleteCacheKey, deleteCacheByPattern} from "../cache/cacheInvalidation";
 
 export async function updateProfile(req : AuthenticatedRequest, res : Response){
     try{
@@ -23,6 +24,9 @@ export async function updateProfile(req : AuthenticatedRequest, res : Response){
         }, {
             returnDocument : 'after'
         }).select("-password")
+
+        await deleteCacheKey(`users:${req.params.id}`);
+        await deleteCacheByPattern("users:*");
 
         return res.status(200).json({
             status : res.statusCode,
@@ -55,6 +59,26 @@ export async function check(req : AuthenticatedRequest, res : Response){
         return res.status(500).json({
             status : res.statusCode,
             message : "Check function failed"
+        })
+    }
+}
+
+export async function getAllUsers(req : AuthenticatedRequest, res : Response){
+    try{
+        const allUsers = await User.find().select("-password")
+
+        return res.status(200).json({
+            status : res.statusCode,
+            message : "All Users",
+            data : {
+                users : allUsers
+            }
+        })
+    }
+    catch(e){
+        return res.status(500).json({
+            status : res.statusCode,
+            message : "Failed to retrieve users"
         })
     }
 }
