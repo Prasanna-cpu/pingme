@@ -13,7 +13,11 @@ import authRouter from "./router/auth-router";
 import userRouter from "./router/user-router";
 import cookieParser from "cookie-parser";
 import messageRouter from "./router/message-router";
-import {server} from "./socket/socket";
+// import {server} from "./socket/socket";
+import {connectRedis, disconnectRedis} from "./cache/redisClient";
+import * as http from "node:http";
+import {app, server, io} from "./socket/socket";
+
 setServers(["1.1.1.1","8.8.8.8"])
 
 
@@ -30,7 +34,9 @@ if(port === undefined || port === null){
     throw new Error("port is not defined")
 }
 
-const app = express()
+// const app = express()
+
+// const server = http.createServer(app)
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -72,12 +78,33 @@ app.get("/metrics", async(req : Request, res : Response) => {
 
 app.use(errorHandler)
 
+const startServer = async() => {
+    try{
+        await connectRedis()
+        console.info("Connected to Redis")
 
-server.listen(port, () => {
-    console.info(`Server is running on  http://localhost:${port}`)
-    connectDB(uri).then(() => {
+        await connectDB(uri)
         console.info("Connected to MongoDB")
-    }).catch((err) => {
-        console.error("Failed to connect to MongoDB", err)
-    })
+
+        server.listen(port, () => {
+            console.info(`Server is running on  http://localhost:${port}`)
+        })
+
+
+    }
+    catch(error){
+        console.error("Failed to start the server : ", error)
+    }
+}
+
+process.on("SIGINT", async () => {
+    await disconnectRedis()
+    process.exit(0)
 })
+
+process.on("SIGTERM", async() => {
+    await disconnectRedis()
+    process.exit(0)
+})
+
+startServer().then(r => console.log("Server Started"));

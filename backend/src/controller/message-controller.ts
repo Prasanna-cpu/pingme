@@ -4,6 +4,8 @@ import User from "../entity/User";
 import Message from "../entity/Message";
 import {messageSchema} from "../validation/message-validation";
 import cloudinary from "../cloudinary/cloudinary";
+import {deleteCacheKey} from "../cache/cacheInvalidation";
+import {getReceiverSocketId, io} from "../socket/socket";
 
 export async function getAllContacts(req : AuthenticatedRequest, res : Response){
     try{
@@ -114,6 +116,24 @@ export async function sendMessage(req : AuthenticatedRequest, res : Response){
         })
 
         await newMessage.save()
+
+
+        const receiverSocketId = getReceiverSocketId(receiverId);
+        console.log(`Receiver Socket ID for receiver ${receiverId}: ${receiverSocketId}`);
+        if (receiverSocketId) {
+            console.log(`Emitting newMessage to socket ${receiverSocketId} for receiver ${receiverId}`);
+            io?.to(receiverSocketId).emit("newMessage", newMessage);
+        }
+
+        const senderIdString = senderId.toString();
+
+        const conversationKey = [senderIdString, receiverId].sort().join(":");
+
+        await Promise.all([
+            deleteCacheKey(`messages:conversation:${conversationKey}`),
+            deleteCacheKey(`messages:chat-partners:${senderIdString}`),
+            deleteCacheKey(`messages:chat-partners:${receiverId}`)
+        ]);
 
         return res.status(201).json({
             status : res.statusCode,
