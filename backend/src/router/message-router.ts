@@ -71,7 +71,7 @@ messageRouter.get(
 messageRouter.get(
     "/contacts",
     protectRoute,
-    cacheMiddleware(300, (req) => {
+    cacheMiddleware(30, (req) => {
         const myId = (req as any).user._id.toString();
         const page = Math.max(Number(req.query.page) || 1, 1);
         const limit = Math.min(Math.max(Number(req.query.limit) || 20, 1), 100);
